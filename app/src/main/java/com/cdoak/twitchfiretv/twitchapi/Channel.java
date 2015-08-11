@@ -4,33 +4,33 @@ package com.cdoak.twitchfiretv.twitchapi;
  * Created by cdoak on 8/7/15.
  */
 public class Channel {
-    int _id;
-    int delay;
+    public int _id;
+    public int delay;
 
-    int views;
-    int followers;
+    public int views;
+    public int followers;
 
-    boolean partner;
-    boolean mature;
+    public boolean partner;
+    public boolean mature;
 
-    String broadcaster_language;
-    String created_at;
-    String updated_at;
+    public String broadcaster_language;
+    public String created_at;
+    public String updated_at;
 
-    String name;
-    String status;
-    String display_name;
-    String game;
-    String url;
+    public String name;
+    public String status;
+    public String display_name;
+    public String game;
+    public String url;
 
-    String logo;
-    String banner;
-    String video_banner;
-    String background;
-    String profile_banner;
-    String profile_banner_background_color;
+    public String logo;
+    public String banner;
+    public String video_banner;
+    public String background;
+    public String profile_banner;
+    public String profile_banner_background_color;
 
-    ChannelLinks _links;
+    public ChannelLinks _links;
 
     public Channel() {
 
