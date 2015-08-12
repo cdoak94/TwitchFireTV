@@ -12,6 +12,7 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -39,7 +40,7 @@ import java.util.HashMap;
  * This is where the main landing page does all of it's rendering magic.
  */
 public class MainFragment extends BrowseFragment {
-    private ArrayObjectAdapter sectionElementsAdapter;
+    private SparseArrayObjectAdapter sectionElementsAdapter;
     private PresenterSelector headerPresenterSelector;
 
     @Override
@@ -94,7 +95,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadAllData() {
-        sectionElementsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        sectionElementsAdapter = new SparseArrayObjectAdapter(new ListRowPresenter());
         Log.d("LOADING DATA", "GAME");
         loadGamesData();
         Log.d("LOADING DATA", "STREAMS");
@@ -124,7 +125,7 @@ public class MainFragment extends BrowseFragment {
                 gameListRowAdapter.add(response);
 
                 HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.games_row_header), getResources().getDrawable(R.drawable.ic_games));
-                sectionElementsAdapter.add(new ListRow(header, gameListRowAdapter));
+                sectionElementsAdapter.set(0, new ListRow(header, gameListRowAdapter));
             }
         };
     }
@@ -151,7 +152,7 @@ public class MainFragment extends BrowseFragment {
                 streamsListRowAdapter.add(streams);
 
                 HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.streams_row_title), getResources().getDrawable(R.drawable.ic_channels));
-                sectionElementsAdapter.add(new ListRow(header, streamsListRowAdapter));
+                sectionElementsAdapter.set(1, new ListRow(header, streamsListRowAdapter));
             }
         };
     }

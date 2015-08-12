@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.cdoak.twitchfiretv.R;
 import com.cdoak.twitchfiretv.twitchapi.Stream;
+import com.cdoak.twitchfiretv.twitchapi.Streams;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
 import com.cdoak.twitchfiretv.twitchapi.TopGames;
 
