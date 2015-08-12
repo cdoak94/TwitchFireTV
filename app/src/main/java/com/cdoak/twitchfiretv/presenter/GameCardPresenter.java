@@ -24,6 +24,7 @@ public class GameCardPresenter extends Presenter {
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         defaultBackgroundColor = parent.getResources().getColor(R.color.default_background);
         selectedBackgroundColor = parent.getResources().getColor(R.color.selected_background);
+        defaultCardImage = parent.getResources().getDrawable(R.drawable.boxart_placeholder);
 
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
@@ -58,6 +59,7 @@ public class GameCardPresenter extends Presenter {
             Glide.with(viewHolder.view.getContext())
                     .load(topGame.game.box.large)
                     .centerCrop()
+                    .error(defaultCardImage)
                     .into(cardView.getMainImageView());
         }
     }

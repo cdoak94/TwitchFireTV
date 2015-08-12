@@ -16,9 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cdoak.twitchfiretv.R;
+import com.cdoak.twitchfiretv.ui.ImageHeaderItem;
+
+import java.util.HashMap;
 
 
 public class IconHeaderItemPresenter extends RowHeaderPresenter {
+
     private float mUnselectedAlpha;
 
     @Override
@@ -38,9 +42,11 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
         HeaderItem headerItem = ((ListRow) o).getHeaderItem();
         View rootView = viewHolder.view;
 
-        ImageView iconView = (ImageView) rootView.findViewById(R.id.header_icon);
-        Drawable icon = rootView.getResources().getDrawable(R.mipmap.ic_launcher);
-        iconView.setImageDrawable(icon);
+        if (headerItem instanceof ImageHeaderItem) {
+            ImageHeaderItem imageHeaderItem = (ImageHeaderItem) headerItem;
+            ImageView iconView = (ImageView) rootView.findViewById(R.id.header_icon);
+            iconView.setImageDrawable(imageHeaderItem.getIcon());
+        }
 
         TextView label = (TextView) rootView.findViewById(R.id.header_label);
         label.setText(headerItem.getName());

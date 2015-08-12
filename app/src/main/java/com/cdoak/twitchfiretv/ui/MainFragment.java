@@ -1,14 +1,22 @@
 package com.cdoak.twitchfiretv.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -21,7 +29,6 @@ import com.cdoak.twitchfiretv.presenter.IconHeaderItemPresenter;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
 import com.cdoak.twitchfiretv.twitchapi.TopGames;
 import com.cdoak.twitchfiretv.twitchapi.TwitchRESTRoutes;
-import com.google.gson.Gson;
 
 /**
  * Created by cdoak on 8/7/15.
@@ -34,7 +41,7 @@ public class MainFragment extends BrowseFragment {
         super.onActivityCreated(savedInstanceState);
 
         loadAllData();
-
+        setupEventListeners();
         setupUIElements();
     }
 
@@ -49,7 +56,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void setupUIElements() {
-        setBadgeDrawable(getActivity().getResources().getDrawable(R.mipmap.ic_launcher));
+        setBadgeDrawable(getActivity().getResources().getDrawable(R.drawable.ic_twitch_logo_white));
         setTitle(getString(R.string.app_name));
         setHeadersState(HEADERS_HIDDEN);
         setHeadersTransitionOnBackEnabled(true);
@@ -64,6 +71,20 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
+    private void setupEventListeners() {
+        setOnSearchClickedListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), MainSearchActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        setOnItemViewClickedListener(new ItemViewClickedListener());
+
+    }
+
     private void loadAllData() {
         sectionElementsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
         Log.d("LOADING DATA","GAME");
@@ -73,7 +94,7 @@ public class MainFragment extends BrowseFragment {
 
     private void loadGamesData() {
         GsonRequest<TopGames> topGamesRequest = new GsonRequest<TopGames>
-                (TwitchRESTRoutes.TOP_GAMES,TopGames.class, null, topGamesListener(), errorListener());
+                (TwitchRESTRoutes.TOP_GAMES + "", TopGames.class, null, topGamesListener(), errorListener());
         RequestQueue rq = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
         rq.add(topGamesRequest);
 
@@ -83,8 +104,6 @@ public class MainFragment extends BrowseFragment {
         return new Response.Listener<TopGames>() {
             @Override
             public void onResponse(TopGames response) {
-                Gson gson = new Gson();
-                Log.d("GAMES RESPONSE", gson.toJson(response));
                 GameCardPresenter cardPresenter = new GameCardPresenter();
 
                 ArrayObjectAdapter gameListRowAdapter = new ArrayObjectAdapter(cardPresenter);
@@ -92,7 +111,7 @@ public class MainFragment extends BrowseFragment {
                     gameListRowAdapter.add(topGame);
                 }
 
-                HeaderItem header = new HeaderItem("Games");
+                HeaderItem header = new ImageHeaderItem("Games", getResources().getDrawable(R.drawable.ic_games));
                 sectionElementsAdapter.add(new ListRow(header, gameListRowAdapter));
             }
         };
@@ -105,5 +124,15 @@ public class MainFragment extends BrowseFragment {
                 Log.d("GSON", "ERROR");
             }
         };
+    }
+
+    private final class ItemViewClickedListener implements OnItemViewClickedListener {
+        @Override
+        public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item,
+                                  RowPresenter.ViewHolder rowViewHolder, Row row) {
+            if (item instanceof TopGame) {
+                Toast.makeText(getActivity(), ((TopGame)item).game.name, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
