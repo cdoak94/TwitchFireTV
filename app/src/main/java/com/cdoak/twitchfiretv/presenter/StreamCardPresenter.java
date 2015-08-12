@@ -1,6 +1,5 @@
 package com.cdoak.twitchfiretv.presenter;
 
-import android.app.Application;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
@@ -8,29 +7,25 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.cdoak.twitchfiretv.R;
-import com.cdoak.twitchfiretv.twitchapi.Game;
+import com.cdoak.twitchfiretv.twitchapi.Stream;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
 import com.cdoak.twitchfiretv.twitchapi.TopGames;
 
 /**
- * Created by cdoak on 8/11/15.
- * @author cdoak
- * A presenter to show the information for an underlying game, shows box art, game title, and viewers.
+ * Created by cdoak on 8/12/15.
  */
-public class GameCardPresenter extends Presenter {
-    private static int GAME_BOX_WIDTH = 272;
-    private static int GAME_BOX_HEIGHT = 380;
+public class StreamCardPresenter extends Presenter {
+    private static int STREAM_PREVIEW_WIDTH = 640;
+    private static int STREAM_PREVIEW_HEIGHT = 360;
     private static int selectedBackgroundColor;
     private static int defaultBackgroundColor;
     private Drawable defaultCardImage;
-    private Drawable gamesIconImage;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         defaultBackgroundColor = parent.getResources().getColor(R.color.default_background);
         selectedBackgroundColor = parent.getResources().getColor(R.color.selected_background);
         defaultCardImage = parent.getResources().getDrawable(R.drawable.boxart_placeholder);
-        gamesIconImage = parent.getResources().getDrawable(R.drawable.ic_games);
 
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
@@ -57,24 +52,18 @@ public class GameCardPresenter extends Presenter {
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
         ImageCardView cardView = (ImageCardView) viewHolder.view;
-        if (item instanceof TopGame) {
-            TopGame topGame = (TopGame) item;
-            cardView.setMainImageDimensions(GAME_BOX_WIDTH, GAME_BOX_HEIGHT);
-            cardView.setTitleText(topGame.game.name);
-            cardView.setContentText(topGame.viewers + " Viewers");
-            if (topGame.game.box.large != null) {
+        cardView.setMainImageDimensions(STREAM_PREVIEW_WIDTH,STREAM_PREVIEW_HEIGHT);
+        if (item instanceof Stream) {
+            Stream stream = (Stream) item;
+            cardView.setTitleText(stream.channel.status);
+            cardView.setContentText(stream.channel.name + " playing " + stream.game);
+            if (stream.preview != null) {
                 Glide.with(viewHolder.view.getContext())
-                        .load(topGame.game.box.large)
+                        .load(stream.preview.large)
                         .centerCrop()
                         .error(defaultCardImage)
                         .into(cardView.getMainImageView());
             }
-        } else if (item instanceof TopGames) {
-            TopGames topGames = (TopGames) item;
-            cardView.setTitleText("Browse All Games");
-            cardView.setContentText(topGames._total + " Games Live");
-            cardView.setMainImage(defaultCardImage);
-            cardView.setBadgeImage(gamesIconImage);
         }
     }
 

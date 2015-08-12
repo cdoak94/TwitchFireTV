@@ -6,8 +6,8 @@ package com.cdoak.twitchfiretv.twitchapi;
 public class Game {
     public String name;
 
-    public int _id;
-    public int giantbomb_id;
+    public long _id;
+    public long giantbomb_id;
 
     public GameBoxArt box;
     public GameLogo logo;

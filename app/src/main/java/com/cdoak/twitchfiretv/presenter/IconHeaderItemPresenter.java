@@ -1,7 +1,8 @@
 package com.cdoak.twitchfiretv.presenter;
 
 /**
- * Created by cdoak on 8/7/15.
+ * @author cdoak
+ * A presenter class to add icons next to the headers in the sidebar.
  */
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cdoak.twitchfiretv.R;
 import com.cdoak.twitchfiretv.ui.ImageHeaderItem;
@@ -56,6 +58,7 @@ public class IconHeaderItemPresenter extends RowHeaderPresenter {
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
         // no op
     }
+
 
     // TODO: TEMP - remove me when leanback onCreateViewHolder no longer sets the mUnselectAlpha,AND
     // also assumes the xml inflation will return a RowHeaderView

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
@@ -13,7 +12,6 @@ import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.PresenterSelector;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -26,15 +24,23 @@ import com.cdoak.twitchfiretv.data.GsonRequest;
 import com.cdoak.twitchfiretv.data.VolleySingleton;
 import com.cdoak.twitchfiretv.presenter.GameCardPresenter;
 import com.cdoak.twitchfiretv.presenter.IconHeaderItemPresenter;
+import com.cdoak.twitchfiretv.presenter.StreamCardPresenter;
+import com.cdoak.twitchfiretv.twitchapi.Stream;
+import com.cdoak.twitchfiretv.twitchapi.Streams;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
 import com.cdoak.twitchfiretv.twitchapi.TopGames;
 import com.cdoak.twitchfiretv.twitchapi.TwitchRESTRoutes;
+import com.cdoak.twitchfiretv.utils.HTTPHeaders;
+
+import java.util.HashMap;
 
 /**
- * Created by cdoak on 8/7/15.
+ * @author cdoak
+ * This is where the main landing page does all of it's rendering magic.
  */
 public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter sectionElementsAdapter;
+    private PresenterSelector headerPresenterSelector;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -63,12 +69,14 @@ public class MainFragment extends BrowseFragment {
         setBrandColor(getResources().getColor(R.color.fastlane_background));
         setSearchAffordanceColor(getResources().getColor(R.color.search_opaque));
 
-        setHeaderPresenterSelector(new PresenterSelector() {
+        headerPresenterSelector = new PresenterSelector() {
             @Override
             public Presenter getPresenter(Object item) {
                 return new IconHeaderItemPresenter();
             }
-        });
+        };
+
+        setHeaderPresenterSelector(headerPresenterSelector);
     }
 
     private void setupEventListeners() {
@@ -87,17 +95,20 @@ public class MainFragment extends BrowseFragment {
 
     private void loadAllData() {
         sectionElementsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
-        Log.d("LOADING DATA","GAME");
+        Log.d("LOADING DATA", "GAME");
         loadGamesData();
+        Log.d("LOADING DATA", "STREAMS");
+        loadStreamsData();
         setAdapter(sectionElementsAdapter);
     }
 
     private void loadGamesData() {
+        HTTPHeaders headers = new HTTPHeaders();
+        headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<TopGames> topGamesRequest = new GsonRequest<TopGames>
-                (TwitchRESTRoutes.TOP_GAMES + "", TopGames.class, null, topGamesListener(), errorListener());
+                (TwitchRESTRoutes.TOP_GAMES, TopGames.class, headers, topGamesListener(), errorListener());
         RequestQueue rq = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
         rq.add(topGamesRequest);
-
     }
 
     private Response.Listener<TopGames> topGamesListener() {
@@ -110,9 +121,37 @@ public class MainFragment extends BrowseFragment {
                 for (TopGame topGame : response.top) {
                     gameListRowAdapter.add(topGame);
                 }
+                gameListRowAdapter.add(response);
 
-                HeaderItem header = new ImageHeaderItem("Games", getResources().getDrawable(R.drawable.ic_games));
+                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.games_row_header), getResources().getDrawable(R.drawable.ic_games));
                 sectionElementsAdapter.add(new ListRow(header, gameListRowAdapter));
+            }
+        };
+    }
+
+    private void loadStreamsData(){
+        HTTPHeaders headers = new HTTPHeaders();
+        headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
+        GsonRequest<Streams> topStreamsRequest = new GsonRequest<Streams>
+                (TwitchRESTRoutes.STREAMS, Streams.class, headers, streamsListener(), errorListener());
+        RequestQueue rq = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
+        rq.add(topStreamsRequest);
+    }
+
+    private Response.Listener<Streams> streamsListener() {
+        return new Response.Listener<Streams>() {
+            @Override
+            public void onResponse(Streams streams) {
+                StreamCardPresenter cardPresenter = new StreamCardPresenter();
+
+                ArrayObjectAdapter streamsListRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                for (Stream stream : streams.streams) {
+                    streamsListRowAdapter.add(stream);
+                }
+                streamsListRowAdapter.add(streams);
+
+                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.streams_row_title), getResources().getDrawable(R.drawable.ic_channels));
+                sectionElementsAdapter.add(new ListRow(header, streamsListRowAdapter));
             }
         };
     }
@@ -121,7 +160,7 @@ public class MainFragment extends BrowseFragment {
         return new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("GSON", "ERROR");
+                Log.d("GSON", "ERROR" + error.toString());
             }
         };
     }
@@ -132,6 +171,8 @@ public class MainFragment extends BrowseFragment {
                                   RowPresenter.ViewHolder rowViewHolder, Row row) {
             if (item instanceof TopGame) {
                 Toast.makeText(getActivity(), ((TopGame)item).game.name, Toast.LENGTH_SHORT).show();
+            } else if (item instanceof TopGames) {
+                Toast.makeText(getActivity(), ((TopGames)item).toString(), Toast.LENGTH_SHORT).show();
             }
         }
     }

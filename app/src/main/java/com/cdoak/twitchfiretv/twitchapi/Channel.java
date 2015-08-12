@@ -1,10 +1,11 @@
 package com.cdoak.twitchfiretv.twitchapi;
 
 /**
- * Created by cdoak on 8/7/15.
+ * @author cdoak
+ * A class structure for GSON to fill with the twitch api JSON channel object.
  */
 public class Channel {
-    public int _id;
+    public long _id;
     public int delay;
 
     public int views;

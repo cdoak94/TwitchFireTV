@@ -9,6 +9,8 @@ import com.cdoak.twitchfiretv.R;
 
 /**
  * Created by Chris Doak on 8/11/2015.
+ * @author cdoak
+ * The main search activity for the app.
  */
 public class MainSearchActivity extends Activity {
     private MainSearchFragment search_fragment;

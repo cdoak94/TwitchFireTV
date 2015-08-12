@@ -5,6 +5,8 @@ import android.support.v17.leanback.widget.HeaderItem;
 
 /**
  * Created by Chris Doak on 8/11/2015.
+ * @author cdoak
+ * A header item with an attached badge image.
  */
 public class ImageHeaderItem extends HeaderItem {
     private Drawable icon;

@@ -1,7 +1,8 @@
 package com.cdoak.twitchfiretv.twitchapi;
 
 /**
- * Created by cdoak on 8/7/15.
+ * @author cdoak
+ * A class structure for GSON to fill with the twitch api JSON channel _links object.
  */
 public class ChannelLinks {
     public String self;
