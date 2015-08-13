@@ -3,4 +3,6 @@
     <string name="top_games_fragment_title">Top Games</string>
     <string name="games_row_header">Games</string>
     <string name="streams_row_title">Live Channels</string>
+    <string name="menu_settings_title">Settings</string>
+    <string name="menu_refresh_title">Refresh</string>
 </resources>

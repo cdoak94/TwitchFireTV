@@ -16,8 +16,8 @@ import com.cdoak.twitchfiretv.twitchapi.TopGames;
  * Created by cdoak on 8/12/15.
  */
 public class StreamCardPresenter extends Presenter {
-    private static int STREAM_PREVIEW_WIDTH = 640;
-    private static int STREAM_PREVIEW_HEIGHT = 360;
+    private static int STREAM_PREVIEW_WIDTH = 512;
+    private static int STREAM_PREVIEW_HEIGHT = 304;
     private static int selectedBackgroundColor;
     private static int defaultBackgroundColor;
     private Drawable defaultCardImage;
@@ -26,7 +26,7 @@ public class StreamCardPresenter extends Presenter {
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         defaultBackgroundColor = parent.getResources().getColor(R.color.default_background);
         selectedBackgroundColor = parent.getResources().getColor(R.color.selected_background);
-        defaultCardImage = parent.getResources().getDrawable(R.drawable.boxart_placeholder);
+        defaultCardImage = parent.getResources().getDrawable(R.drawable.channel_placeholder);
 
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
@@ -60,11 +60,15 @@ public class StreamCardPresenter extends Presenter {
             cardView.setContentText(stream.channel.name + " playing " + stream.game);
             if (stream.preview != null) {
                 Glide.with(viewHolder.view.getContext())
-                        .load(stream.preview.large)
+                        .load(stream.preview.medium)
                         .centerCrop()
                         .error(defaultCardImage)
                         .into(cardView.getMainImageView());
             }
+        } else if (item instanceof Streams) {
+            cardView.setTitleText("Browse All Channels");
+            cardView.setContentText("This is a test\n of double lines...");
+            cardView.setMainImage(defaultCardImage);
         }
     }
 
