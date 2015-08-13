@@ -2,19 +2,22 @@ package com.cdoak.twitchfiretv.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.VideoView;
 
 import com.cdoak.twitchfiretv.R;
+import com.google.android.exoplayer.ExoPlayer;
 
 /**
- * Created by cdoak on 8/12/15.
+ * Created by cdoak on 8/13/15.
  * @author cdoak
- * Activity for showing the top games.
+ * The activity for stream playback
  */
-public class TopGamesActivity extends Activity {
+public class StreamPlaybackActivity extends Activity {
+    private VideoView streamVideoView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_top_games);
-    }
 
+    }
 }

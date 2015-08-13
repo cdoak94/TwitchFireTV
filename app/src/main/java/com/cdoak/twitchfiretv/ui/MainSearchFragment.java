@@ -13,6 +13,8 @@ import java.lang.reflect.Field;
 
 /**
  * Created by Chris Doak on 8/11/2015.
+ * @author cdoak
+ * A search fragment for searching in the app.
  */
 public class MainSearchFragment extends SearchFragment
         implements SearchFragment.SearchResultProvider {

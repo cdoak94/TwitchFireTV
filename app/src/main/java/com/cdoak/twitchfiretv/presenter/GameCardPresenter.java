@@ -60,7 +60,7 @@ public class GameCardPresenter extends Presenter {
             TopGame topGame = (TopGame) item;
             cardView.setMainImageDimensions(GAME_BOX_WIDTH, GAME_BOX_HEIGHT);
             cardView.setTitleText(topGame.game.name);
-            cardView.setContentText(topGame.viewers + " Viewers");
+            cardView.setContentText(String.format("%,d Viewers", topGame.viewers));
             if (topGame.game.box.large != null) {
                 Glide.with(viewHolder.view.getContext())
                         .load(topGame.game.box.large)

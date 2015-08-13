@@ -32,10 +32,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.TopGamesActivity">
-        </activity>
-
 
     </application>
 

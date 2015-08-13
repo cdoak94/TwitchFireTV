@@ -11,13 +11,16 @@ import com.cdoak.twitchfiretv.twitchapi.Stream;
 import com.cdoak.twitchfiretv.twitchapi.Streams;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
 import com.cdoak.twitchfiretv.twitchapi.TopGames;
+import com.cdoak.twitchfiretv.view.StreamCardView;
 
 /**
  * Created by cdoak on 8/12/15.
+ * @author cdoak
+ * Presents a card with a stream on it.
  */
 public class StreamCardPresenter extends Presenter {
-    private static int STREAM_PREVIEW_WIDTH = 512;
-    private static int STREAM_PREVIEW_HEIGHT = 304;
+    private static final int STREAM_PREVIEW_WIDTH = 512;
+    private static final int STREAM_PREVIEW_HEIGHT = 304;
     private static int selectedBackgroundColor;
     private static int defaultBackgroundColor;
     private Drawable defaultCardImage;
@@ -28,7 +31,7 @@ public class StreamCardPresenter extends Presenter {
         selectedBackgroundColor = parent.getResources().getColor(R.color.selected_background);
         defaultCardImage = parent.getResources().getDrawable(R.drawable.channel_placeholder);
 
-        ImageCardView cardView = new ImageCardView(parent.getContext()) {
+        StreamCardView cardView = new StreamCardView(parent.getContext()) {
             @Override
             public void setSelected(boolean selected) {
                 updateCardBackgroundColor(this, selected);
@@ -42,7 +45,7 @@ public class StreamCardPresenter extends Presenter {
         return new ViewHolder(cardView);
     }
 
-    private static void updateCardBackgroundColor(ImageCardView view, boolean selected) {
+    private static void updateCardBackgroundColor(StreamCardView view, boolean selected) {
         int color = selected ? selectedBackgroundColor : defaultBackgroundColor;
         // Both background colors should be set because the view's background is temporarily visible
         // during animations.
@@ -52,12 +55,14 @@ public class StreamCardPresenter extends Presenter {
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Object item) {
-        ImageCardView cardView = (ImageCardView) viewHolder.view;
+        StreamCardView cardView = (StreamCardView) viewHolder.view;
         cardView.setMainImageDimensions(STREAM_PREVIEW_WIDTH,STREAM_PREVIEW_HEIGHT);
         if (item instanceof Stream) {
             Stream stream = (Stream) item;
             cardView.setTitleText(stream.channel.status);
-            cardView.setContentText(stream.channel.name + " playing " + stream.game);
+            cardView.setChannelText(stream.channel.name);
+            cardView.setGameText(stream.channel.game);
+            cardView.setViewerText(String.format("%,d", stream.viewers));
             if (stream.preview != null) {
                 Glide.with(viewHolder.view.getContext())
                         .load(stream.preview.medium)
@@ -67,15 +72,13 @@ public class StreamCardPresenter extends Presenter {
             }
         } else if (item instanceof Streams) {
             cardView.setTitleText("Browse All Channels");
-            cardView.setContentText("This is a test\n of double lines...");
             cardView.setMainImage(defaultCardImage);
         }
     }
 
     @Override
     public void onUnbindViewHolder(ViewHolder viewHolder) {
-        ImageCardView cardView = (ImageCardView) viewHolder.view;
-        cardView.setBadgeImage(null);
+        StreamCardView cardView = (StreamCardView) viewHolder.view;
         cardView.setMainImage(null);
     }
 }
