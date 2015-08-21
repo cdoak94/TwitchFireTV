@@ -4,6 +4,7 @@ import com.cdoak.twitchfiretv.utils.HTTPHeader;
 import com.cdoak.twitchfiretv.utils.URLQueryString;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
 
@@ -24,6 +25,12 @@ public class TwitchRESTRoutes {
 
     public static final String USHER = "http://usher.twitch.tv";
 
+    public static String requestTopStreams(int limit) {
+        URLQueryString query = new URLQueryString();
+        query.add("limit", Integer.toString(limit));
+        String url = STREAMS + query.getQueryString();
+        return url;
+    }
 
     public static String requestStreamToken(String channel) {
         return String.format(STREAM_TOKEN, channel);

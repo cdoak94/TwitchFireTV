@@ -23,6 +23,7 @@ public class GameCardPresenter extends Presenter {
     private static int selectedBackgroundColor;
     private static int defaultBackgroundColor;
     private Drawable defaultCardImage;
+    private Drawable allGamesImage;
     private Drawable gamesIconImage;
 
     @Override
@@ -30,6 +31,7 @@ public class GameCardPresenter extends Presenter {
         defaultBackgroundColor = parent.getResources().getColor(R.color.default_background);
         selectedBackgroundColor = parent.getResources().getColor(R.color.selected_background);
         defaultCardImage = parent.getResources().getDrawable(R.drawable.boxart_placeholder);
+        allGamesImage = parent.getResources().getDrawable(R.drawable.allgames_placeholder);
 
         ImageCardView cardView = new ImageCardView(parent.getContext()) {
             @Override
@@ -72,8 +74,7 @@ public class GameCardPresenter extends Presenter {
             TopGames topGames = (TopGames) item;
             cardView.setTitleText("Browse All Games");
             cardView.setContentText(topGames._total + " Games Live");
-            cardView.setMainImage(defaultCardImage);
-            cardView.setBadgeImage(gamesIconImage);
+            cardView.setMainImage(allGamesImage);
         }
     }
 

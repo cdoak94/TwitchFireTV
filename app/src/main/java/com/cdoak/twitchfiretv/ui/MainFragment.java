@@ -134,7 +134,7 @@ public class MainFragment extends BrowseFragment {
         HTTPHeaders headers = new HTTPHeaders();
         headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<Streams> topStreamsRequest = new GsonRequest<Streams>
-                (TwitchRESTRoutes.STREAMS, Streams.class, headers, streamsListener(), errorListener());
+                (TwitchRESTRoutes.requestTopStreams(10), Streams.class, headers, streamsListener(), errorListener());
         RequestQueue rq = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
         rq.add(topStreamsRequest);
     }

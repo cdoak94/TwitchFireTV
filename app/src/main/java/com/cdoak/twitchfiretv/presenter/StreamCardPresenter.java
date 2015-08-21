@@ -24,12 +24,15 @@ public class StreamCardPresenter extends Presenter {
     private static int selectedBackgroundColor;
     private static int defaultBackgroundColor;
     private Drawable defaultCardImage;
+    private Drawable allGameCardImage;
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent) {
         defaultBackgroundColor = parent.getResources().getColor(R.color.default_background);
         selectedBackgroundColor = parent.getResources().getColor(R.color.selected_background);
         defaultCardImage = parent.getResources().getDrawable(R.drawable.channel_placeholder);
+        allGameCardImage = parent.getResources().getDrawable(R.drawable.allchannels_placeholder);
+
 
         StreamCardView cardView = new StreamCardView(parent.getContext()) {
             @Override
@@ -71,8 +74,12 @@ public class StreamCardPresenter extends Presenter {
                         .into(cardView.getMainImageView());
             }
         } else if (item instanceof Streams) {
+            Streams streams = (Streams) item;
             cardView.setTitleText("Browse All Channels");
-            cardView.setMainImage(defaultCardImage);
+            cardView.setMainImage(allGameCardImage);
+            cardView.setChannelText(streams._total + " Channels Live");
+            cardView.setGameText("-");
+            cardView.setViewerText("-");
         }
     }
 

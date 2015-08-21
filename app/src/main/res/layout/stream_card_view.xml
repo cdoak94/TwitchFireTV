@@ -87,7 +87,7 @@
                     android:layout_width="@dimen/stream_badge_image"
                     android:layout_height="@dimen/stream_badge_image"
                     android:layout_gravity="center_vertical|left"
-                    android:src="@drawable/ic_channels"/>
+                    android:src="@drawable/ic_viewers"/>
                 <TextView
                     android:id="@+id/views_text"
                     android:layout_width="match_parent"

@@ -14,6 +14,10 @@ public class URLQueryString {
     public static final String ENCODING = "UTF-8";
     private ArrayList<MapEntry> queryPairs;
 
+    public URLQueryString() {
+        queryPairs = new ArrayList<>();
+    }
+
     public void add(String key, String value) {
         queryPairs.add(new MapEntry(key, value));
     }
