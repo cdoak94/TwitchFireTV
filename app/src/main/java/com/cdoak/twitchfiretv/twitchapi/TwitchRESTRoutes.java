@@ -21,6 +21,8 @@ public class TwitchRESTRoutes {
 
     public static final String STREAMS = API + "/kraken/streams";
 
+    public static final String FEATURED_STREAMS = STREAMS + "/featured";
+
     public static final String STREAM_TOKEN = API + "/api/channels/%s/access_token";
 
     public static final String USHER = "http://usher.twitch.tv";

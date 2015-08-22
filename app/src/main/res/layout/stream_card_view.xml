@@ -31,6 +31,7 @@
                 android:textColor="@color/lb_basic_card_title_text_color"
                 android:textSize="@dimen/lb_basic_card_title_text_size"
                 android:maxLines="2"
+                android:minLines="2"
                 android:ellipsize="end" />
             <LinearLayout
                 android:layout_width="match_parent"

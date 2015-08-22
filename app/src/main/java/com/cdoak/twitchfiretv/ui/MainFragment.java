@@ -26,11 +26,14 @@ import com.cdoak.twitchfiretv.data.VolleySingleton;
 import com.cdoak.twitchfiretv.presenter.GameCardPresenter;
 import com.cdoak.twitchfiretv.presenter.IconHeaderItemPresenter;
 import com.cdoak.twitchfiretv.presenter.StreamCardPresenter;
+import com.cdoak.twitchfiretv.twitchapi.FeaturedStream;
+import com.cdoak.twitchfiretv.twitchapi.FeaturedStreams;
 import com.cdoak.twitchfiretv.twitchapi.Stream;
 import com.cdoak.twitchfiretv.twitchapi.Streams;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
 import com.cdoak.twitchfiretv.twitchapi.TopGames;
 import com.cdoak.twitchfiretv.twitchapi.TwitchRESTRoutes;
+import com.cdoak.twitchfiretv.utils.HTTPHeader;
 import com.cdoak.twitchfiretv.utils.HTTPHeaders;
 
 import java.util.HashMap;
@@ -42,10 +45,13 @@ import java.util.HashMap;
 public class MainFragment extends BrowseFragment {
     private SparseArrayObjectAdapter sectionElementsAdapter;
     private PresenterSelector headerPresenterSelector;
+    private RequestQueue volleyRQ;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        volleyRQ = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
 
         loadAllData();
         setupEventListeners();
@@ -96,6 +102,8 @@ public class MainFragment extends BrowseFragment {
 
     private void loadAllData() {
         sectionElementsAdapter = new SparseArrayObjectAdapter(new ListRowPresenter());
+        Log.d("LOADING DATA", "FEATURED");
+        loadFeaturedData();
         Log.d("LOADING DATA", "GAME");
         loadGamesData();
         Log.d("LOADING DATA", "STREAMS");
@@ -103,13 +111,38 @@ public class MainFragment extends BrowseFragment {
         setAdapter(sectionElementsAdapter);
     }
 
+    private void loadFeaturedData() {
+        HTTPHeaders headers = new HTTPHeaders();
+        headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
+        GsonRequest<FeaturedStreams> featuredStreamsRequest = new GsonRequest<>
+                (TwitchRESTRoutes.FEATURED_STREAMS, FeaturedStreams.class, headers, featuredStreamsListener(), errorListener());
+        volleyRQ.add(featuredStreamsRequest);
+
+    }
+
+    private Response.Listener<FeaturedStreams> featuredStreamsListener() {
+        return new Response.Listener<FeaturedStreams>() {
+            @Override
+            public void onResponse(FeaturedStreams featuredStreams) {
+                StreamCardPresenter cardPresenter = new StreamCardPresenter();
+
+                ArrayObjectAdapter streamsListRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                for (FeaturedStream stream : featuredStreams.featured) {
+                    streamsListRowAdapter.add(stream.stream);
+                }
+
+                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.featured_row_title), getResources().getDrawable(R.drawable.ic_featured));
+                sectionElementsAdapter.set(0, new ListRow(header, streamsListRowAdapter));
+            }
+        };
+    }
+
     private void loadGamesData() {
         HTTPHeaders headers = new HTTPHeaders();
         headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<TopGames> topGamesRequest = new GsonRequest<TopGames>
                 (TwitchRESTRoutes.TOP_GAMES, TopGames.class, headers, topGamesListener(), errorListener());
-        RequestQueue rq = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
-        rq.add(topGamesRequest);
+        volleyRQ.add(topGamesRequest);
     }
 
     private Response.Listener<TopGames> topGamesListener() {
@@ -125,7 +158,7 @@ public class MainFragment extends BrowseFragment {
                 gameListRowAdapter.add(response);
 
                 HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.games_row_header), getResources().getDrawable(R.drawable.ic_games));
-                sectionElementsAdapter.set(0, new ListRow(header, gameListRowAdapter));
+                sectionElementsAdapter.set(1, new ListRow(header, gameListRowAdapter));
             }
         };
     }
@@ -135,8 +168,7 @@ public class MainFragment extends BrowseFragment {
         headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<Streams> topStreamsRequest = new GsonRequest<Streams>
                 (TwitchRESTRoutes.requestTopStreams(10), Streams.class, headers, streamsListener(), errorListener());
-        RequestQueue rq = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
-        rq.add(topStreamsRequest);
+        volleyRQ.add(topStreamsRequest);
     }
 
     private Response.Listener<Streams> streamsListener() {
@@ -152,7 +184,7 @@ public class MainFragment extends BrowseFragment {
                 streamsListRowAdapter.add(streams);
 
                 HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.streams_row_title), getResources().getDrawable(R.drawable.ic_channels));
-                sectionElementsAdapter.set(1, new ListRow(header, streamsListRowAdapter));
+                sectionElementsAdapter.set(2, new ListRow(header, streamsListRowAdapter));
             }
         };
     }

@@ -5,4 +5,5 @@
     <string name="streams_row_title">Live Channels</string>
     <string name="menu_settings_title">Settings</string>
     <string name="menu_refresh_title">Refresh</string>
+    <string name="featured_row_title">Featured Streams</string>
 </resources>
