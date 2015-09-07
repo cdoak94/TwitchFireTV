@@ -9,6 +9,4 @@ public class StreamAccessToken {
     public String token;
     public String sig;
     public String mobile_restricted;
-
-    public StreamAccessToken() {}
 }

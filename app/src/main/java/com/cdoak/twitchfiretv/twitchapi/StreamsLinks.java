@@ -12,6 +12,4 @@ public class StreamsLinks {
     public String featured;
     public String summary;
     public String followed;
-
-    public StreamsLinks(){}
 }

@@ -15,8 +15,4 @@ public class ChannelLinks {
     public String editors;
     public String teams;
     public String videos;
-
-    public ChannelLinks() {
-
-    }
 }

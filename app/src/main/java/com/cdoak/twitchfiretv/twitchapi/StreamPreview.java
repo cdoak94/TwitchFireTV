@@ -11,8 +11,4 @@ public class StreamPreview {
     public String large;
 
     public String template;
-
-    public StreamPreview() {
-
-    }
 }

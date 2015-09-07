@@ -10,8 +10,4 @@ import java.util.List;
 public class Streams {
     public int _total;
     public List<Stream> streams;
-
-    public Streams() {
-
-    }
 }

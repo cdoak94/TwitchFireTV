@@ -8,8 +8,4 @@ package com.cdoak.twitchfiretv.twitchapi;
 public class StreamResponseLinks {
     public String self;
     public String channel;
-
-    public StreamResponseLinks() {
-
-    }
 }

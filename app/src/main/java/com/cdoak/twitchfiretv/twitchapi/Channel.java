@@ -32,8 +32,4 @@ public class Channel {
     public String profile_banner_background_color;
 
     public ChannelLinks _links;
-
-    public Channel() {
-
-    }
 }

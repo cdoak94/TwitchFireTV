@@ -1,6 +1,11 @@
 package com.cdoak.twitchfiretv.ui;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
@@ -15,8 +20,11 @@ import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -28,6 +36,7 @@ import com.cdoak.twitchfiretv.presenter.IconHeaderItemPresenter;
 import com.cdoak.twitchfiretv.presenter.StreamCardPresenter;
 import com.cdoak.twitchfiretv.twitchapi.FeaturedStream;
 import com.cdoak.twitchfiretv.twitchapi.FeaturedStreams;
+import com.cdoak.twitchfiretv.twitchapi.Oauth2TokenResponse;
 import com.cdoak.twitchfiretv.twitchapi.Stream;
 import com.cdoak.twitchfiretv.twitchapi.Streams;
 import com.cdoak.twitchfiretv.twitchapi.TopGame;
@@ -43,15 +52,21 @@ import java.util.HashMap;
  * This is where the main landing page does all of it's rendering magic.
  */
 public class MainFragment extends BrowseFragment {
+    private static final int GAMES_TO_DISPLAY_AMOUNT = 15;
+    private static final int STREAMS_TO_DISPLAY_AMOUNT = 15;
+
     private SparseArrayObjectAdapter sectionElementsAdapter;
     private PresenterSelector headerPresenterSelector;
     private RequestQueue volleyRQ;
+    private SharedPreferences prefs;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         volleyRQ = VolleySingleton.getInstance(getActivity().getApplicationContext()).getRequestQueue();
+
+        prefs = getActivity().getPreferences(Context.MODE_PRIVATE);
 
         loadAllData();
         setupEventListeners();
@@ -108,6 +123,8 @@ public class MainFragment extends BrowseFragment {
         loadGamesData();
         Log.d("LOADING DATA", "STREAMS");
         loadStreamsData();
+        Log.d("LOADING DATA", "USER DATA");
+        loadUserData();
         setAdapter(sectionElementsAdapter);
     }
 
@@ -115,7 +132,8 @@ public class MainFragment extends BrowseFragment {
         HTTPHeaders headers = new HTTPHeaders();
         headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<FeaturedStreams> featuredStreamsRequest = new GsonRequest<>
-                (TwitchRESTRoutes.FEATURED_STREAMS, FeaturedStreams.class, headers, featuredStreamsListener(), errorListener());
+                (TwitchRESTRoutes.requestFeaturedStreams(STREAMS_TO_DISPLAY_AMOUNT, 0),
+                        FeaturedStreams.class, headers, featuredStreamsListener(), errorListener());
         volleyRQ.add(featuredStreamsRequest);
 
     }
@@ -131,7 +149,8 @@ public class MainFragment extends BrowseFragment {
                     streamsListRowAdapter.add(stream.stream);
                 }
 
-                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.featured_row_title), getResources().getDrawable(R.drawable.ic_featured));
+                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.featured_row_title),
+                        getResources().getDrawable(R.drawable.ic_featured));
                 sectionElementsAdapter.set(0, new ListRow(header, streamsListRowAdapter));
             }
         };
@@ -141,7 +160,8 @@ public class MainFragment extends BrowseFragment {
         HTTPHeaders headers = new HTTPHeaders();
         headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<TopGames> topGamesRequest = new GsonRequest<TopGames>
-                (TwitchRESTRoutes.TOP_GAMES, TopGames.class, headers, topGamesListener(), errorListener());
+                (TwitchRESTRoutes.requestTopGames(GAMES_TO_DISPLAY_AMOUNT, 0),
+                        TopGames.class, headers, topGamesListener(), errorListener());
         volleyRQ.add(topGamesRequest);
     }
 
@@ -157,17 +177,19 @@ public class MainFragment extends BrowseFragment {
                 }
                 gameListRowAdapter.add(response);
 
-                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.games_row_header), getResources().getDrawable(R.drawable.ic_games));
+                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.games_row_header),
+                        getResources().getDrawable(R.drawable.ic_games));
                 sectionElementsAdapter.set(1, new ListRow(header, gameListRowAdapter));
             }
         };
     }
 
-    private void loadStreamsData(){
+    private void loadStreamsData() {
         HTTPHeaders headers = new HTTPHeaders();
         headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
         GsonRequest<Streams> topStreamsRequest = new GsonRequest<Streams>
-                (TwitchRESTRoutes.requestTopStreams(10), Streams.class, headers, streamsListener(), errorListener());
+                (TwitchRESTRoutes.requestTopStreams(STREAMS_TO_DISPLAY_AMOUNT, 0), Streams.class,
+                        headers, streamsListener(), errorListener());
         volleyRQ.add(topStreamsRequest);
     }
 
@@ -183,8 +205,53 @@ public class MainFragment extends BrowseFragment {
                 }
                 streamsListRowAdapter.add(streams);
 
-                HeaderItem header = new ImageHeaderItem(getResources().getString(R.string.streams_row_title), getResources().getDrawable(R.drawable.ic_channels));
+                HeaderItem header = new ImageHeaderItem(
+                        getResources().getString(R.string.streams_row_title),
+                        getResources().getDrawable(R.drawable.ic_channels));
                 sectionElementsAdapter.set(2, new ListRow(header, streamsListRowAdapter));
+            }
+        };
+    }
+
+    private void loadUserData() {
+        boolean loggedIn = prefs.getBoolean(TwitchRESTRoutes.LOGGED_IN_ID, false);
+        if (loggedIn) {
+            Toast.makeText(getActivity(), "Logged IN", Toast.LENGTH_SHORT).show();
+            loadFollowedStreams();
+        } else {
+            Toast.makeText(getActivity(), "NOT Logged In", Toast.LENGTH_SHORT).show();
+            loginOauth();
+        }
+    }
+
+    private void loadFollowedStreams() {
+        HTTPHeaders headers = new HTTPHeaders();
+        headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
+        headers.add(
+                TwitchRESTRoutes.AuthHeader(
+                        prefs.getString(TwitchRESTRoutes.OAUTH_TOKEN_ID, "abc123")));
+        GsonRequest<Streams> followingStreamsRequest = new GsonRequest<Streams>
+                (TwitchRESTRoutes.requestFollowedStreams(STREAMS_TO_DISPLAY_AMOUNT, 0), Streams.class,
+                        headers, followedStreamsListener(), errorListener());
+        volleyRQ.add(followingStreamsRequest);
+    }
+
+    private Response.Listener<Streams> followedStreamsListener() {
+        return new Response.Listener<Streams>() {
+            @Override
+            public void onResponse(Streams streams) {
+                StreamCardPresenter cardPresenter = new StreamCardPresenter();
+
+                ArrayObjectAdapter streamsListRowAdapter = new ArrayObjectAdapter(cardPresenter);
+                for (Stream stream : streams.streams) {
+                    streamsListRowAdapter.add(stream);
+                }
+                streamsListRowAdapter.add(streams);
+
+                HeaderItem header = new ImageHeaderItem(String.format(
+                        getResources().getString(R.string.following_row_title), streams._total),
+                        getResources().getDrawable(R.drawable.ic_following));
+                sectionElementsAdapter.set(3, new ListRow(header, streamsListRowAdapter));
             }
         };
     }
@@ -196,6 +263,65 @@ public class MainFragment extends BrowseFragment {
                 Log.d("GSON", "ERROR" + error.toString());
             }
         };
+    }
+
+    private void loginOauth() {
+        final Dialog auth_dialog = new Dialog(getActivity());
+        auth_dialog.setContentView(R.layout.auth_dialog);
+        WebView webView = (WebView)auth_dialog.findViewById(R.id.auth_web_view);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl(TwitchRESTRoutes.getOauthUrl(getActivity()));
+
+
+        webView.setWebViewClient(new WebViewClient() {
+            boolean authComplete = false;
+            String authCode;
+
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                super.onPageStarted(view, url, favicon);
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                if (url.contains("?code=") && authComplete != true) {
+                    auth_dialog.dismiss();
+                    Uri uri = Uri.parse(url);
+                    authCode = uri.getQueryParameter("code");
+                    authComplete = true;
+
+                    HTTPHeaders headers = new HTTPHeaders();
+                    headers.add(TwitchRESTRoutes.ACCEPT_HEADER);
+                    GsonRequest<Oauth2TokenResponse> authTokenRequest = new GsonRequest<Oauth2TokenResponse>
+                            (Request.Method.POST, TwitchRESTRoutes.getTokenUrl(getActivity(), authCode),
+                                    Oauth2TokenResponse.class, headers, authListener(), errorListener());
+                    volleyRQ.add(authTokenRequest);
+
+                    Toast.makeText(getActivity(), "Auth Code: " + authCode, Toast.LENGTH_SHORT).show();
+                } else if (url.contains("error=access_denied")) {
+                    authComplete = true;
+                    Toast.makeText(getActivity(), "Error Occured", Toast.LENGTH_SHORT).show();
+
+                    auth_dialog.dismiss();
+                }
+            }
+
+            private Response.Listener<Oauth2TokenResponse> authListener() {
+                return new Response.Listener<Oauth2TokenResponse>() {
+                    @Override
+                    public void onResponse(Oauth2TokenResponse oauth2TokenResponse) {
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putBoolean(TwitchRESTRoutes.LOGGED_IN_ID, true);
+                        editor.putString(TwitchRESTRoutes.OAUTH_TOKEN_ID, oauth2TokenResponse.access_token);
+                        editor.commit();
+                    }
+                };
+            }
+        });
+        auth_dialog.show();
+        auth_dialog.setTitle("Log In");
+        auth_dialog.setCancelable(true);
     }
 
     private final class ItemViewClickedListener implements OnItemViewClickedListener {

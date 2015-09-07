@@ -21,8 +21,4 @@ public class Stream {
     public StreamLinks _links;
 
     public Channel channel;
-
-    public Stream() {
-
-    }
 }

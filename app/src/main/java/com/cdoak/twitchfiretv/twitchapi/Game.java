@@ -13,8 +13,4 @@ public class Game {
 
     public GameBoxArt box;
     public GameLogo logo;
-
-    public Game(){
-
-    }
 }

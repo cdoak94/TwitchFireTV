@@ -9,8 +9,4 @@ public class StreamResponse {
     public StreamResponseLinks _links;
 
     public Stream stream;
-
-    public StreamResponse() {
-
-    }
 }

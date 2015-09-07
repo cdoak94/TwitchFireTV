@@ -7,4 +7,6 @@ package com.cdoak.twitchfiretv.twitchapi;
  */
 public class StreamLinks {
     public String self;
+    public String next;
+    public String prev;
 }
