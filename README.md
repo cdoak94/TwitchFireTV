@@ -5,6 +5,12 @@ I wouldn't know at all how to integrate Amazon's SDK.
 There are vague instructions on the Amazon developer's site, but documentation is spotty at best.
 The bonus is that Android API 17 runs natively on fire tv stick, so I was gonna skip the whole Amazon integration thing.
 
+## NOTICE: INACTIVE
+I tried buidling this app a long time ago because I had a FireTV stick and I watched Twitch and the official app at the time sucked.
+Building a whole app was never going to work because I know nothing of AndroidTV/FireTV development and Twitch is complex and I didn't care that much.
+Eventually Amazon bought Twich, the app sucked less, I stopped watching Twitch and I stopped using a FireTV stick.
+This is dead.
+
 ## API's and Libs
 Here is a run-down of the API's and libs to be used.
 
